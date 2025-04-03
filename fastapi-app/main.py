@@ -12,7 +12,7 @@ class TodoItem(BaseModel):
     title: str
     description: str
     completed: bool
-    due_date: str  # New field for deadline
+      # New field for deadline
 
 # JSON 파일 경로
 TODO_FILE = "todo.json"
