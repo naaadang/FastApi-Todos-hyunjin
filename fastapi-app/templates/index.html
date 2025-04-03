@@ -6,64 +6,69 @@
     <title>To-Do List</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
-            background-color: #f8f9fa;
-            padding: 20px;
+            background: linear-gradient(to right, #ece9e6, #ffffff);
+            padding: 30px;
         }
         ul {
             list-style-type: none;
             padding: 0;
-            max-width: 400px;
-            margin: 0 auto;
+            max-width: 500px;
+            margin: 20px auto;
         }
         li {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #ffffff;
-            border-radius: 5px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            justify-content: space-between;
+            padding: 12px;
+            margin: 10px 0;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        li.completed span {
+            text-decoration: line-through;
+            color: #6c757d;
         }
         .delete-btn {
-            background-color: red;
+            background-color: #dc3545;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 6px 10px;
+            border-radius: 5px;
             cursor: pointer;
-            border-radius: 3px;
         }
         .delete-btn:hover {
-            background-color: darkred;
+            background-color: #c82333;
         }
         form {
-            margin-top: 20px;
+            margin-top: 30px;
         }
         input, button {
-            padding: 8px;
-            margin: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 8px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            font-size: 16px;
         }
-        button {
+        button[type="submit"] {
             background-color: #28a745;
             color: white;
             cursor: pointer;
         }
-        button:hover {
+        button[type="submit"]:hover {
             background-color: #218838;
         }
     </style>
 </head>
 <body>
-    <h1>To-Do List</h1>
+    <h1>✅ To-Do List</h1>
     <ul id="todo-list"></ul>
     <form id="todo-form">
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="description" placeholder="Description" required>
-        <button type="submit">Add To-Do</button>
+        <button type="submit">Add</button>
     </form>
     <script>
         async function fetchTodos() {
@@ -74,16 +79,36 @@
 
             todos.forEach(todo => {
                 const li = document.createElement('li');
-                li.textContent = `${todo.title}: ${todo.description}`;
+                if (todo.completed) li.classList.add('completed');
+
+                const label = document.createElement('label');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = todo.completed;
+                checkbox.addEventListener('change', async () => {
+                    await fetch(`/todos/${todo.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ...todo, completed: checkbox.checked })
+                    });
+                    fetchTodos();
+                });
+
+                const span = document.createElement('span');
+                span.textContent = `${todo.title}: ${todo.description}`;
+
+                label.appendChild(checkbox);
+                label.appendChild(span);
 
                 const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = '삭제';
+                deleteBtn.textContent = '❌';
                 deleteBtn.classList.add('delete-btn');
                 deleteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); 
+                    e.stopPropagation();
                     deleteTodo(todo.id);
                 });
 
+                li.appendChild(label);
                 li.appendChild(deleteBtn);
                 todoList.appendChild(li);
             });
@@ -93,7 +118,7 @@
             event.preventDefault();
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
-            
+
             const response = await fetch('/todos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
