@@ -27,10 +27,9 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        li.completed{
-            background-color: #f0f0f0; 
-            color: #6c757d; 
-
+        li.completed {
+            background-color: #f0f0f0;
+            color: #6c757d;
         }
         li.completed span {
             text-decoration: line-through;
@@ -73,12 +72,17 @@
     <form id="todo-form">
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="description" placeholder="Description" required>
+        <input type="date" id="deadline" required>
         <button type="submit">Add</button>
     </form>
     <script>
         async function fetchTodos() {
             const response = await fetch('/todos');
             const todos = await response.json();
+            renderTodos(todos);
+        }
+
+        function renderTodos(todos) {
             const todoList = document.getElementById('todo-list');
             todoList.innerHTML = '';
 
@@ -94,13 +98,13 @@
                     await fetch(`/todos/${todo.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ...todo, completed: checkbox.checked })
+                        body: JSON.stringify({ ...todo, completed: checkbox.checked }) // ✅ 수정 완료
                     });
                     fetchTodos();
                 });
 
                 const span = document.createElement('span');
-                span.textContent = `${todo.title}: ${todo.description}`;
+                span.textContent = `${todo.title}: ${todo.description} (마감: ${todo.deadline})`;
 
                 label.appendChild(checkbox);
                 label.appendChild(span);
@@ -108,9 +112,9 @@
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = '❌';
                 deleteBtn.classList.add('delete-btn');
-                deleteBtn.addEventListener('click', (e) => {
+                deleteBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    deleteTodo(todo.id);
+                    await deleteTodo(todo.id);
                 });
 
                 li.appendChild(label);
@@ -123,16 +127,21 @@
             event.preventDefault();
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
+            const deadline = document.getElementById('deadline').value;
 
             const response = await fetch('/todos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: Date.now(), title, description, completed: false })
+                body: JSON.stringify({ id: Date.now(), title, description, deadline, completed: false })
             });
 
             if (response.ok) {
+                // 폼 초기화
                 document.getElementById('title').value = '';
                 document.getElementById('description').value = '';
+                document.getElementById('deadline').value = '';
+
+                // 목록 즉시 새로고침
                 fetchTodos();
             }
         });
