@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 import json
 import os
@@ -12,9 +12,9 @@ class TodoItem(BaseModel):
     title: str
     description: str
     completed: bool
-    deadline: str  # ✅ 마감일 추가
+    deadline: str
+    performance: int
 
-# JSON 파일 경로
 TODO_FILE = "todo.json"
 
 def load_todos():
@@ -36,7 +36,7 @@ def create_todo(todo: TodoItem):
     todos = load_todos()
     todos.append(todo.dict())
     save_todos(todos)
-    return todo
+    return JSONResponse(content=todo.dict())
 
 @app.put("/todos/{todo_id}", response_model=TodoItem)
 def update_todo(todo_id: int, updated_todo: TodoItem):

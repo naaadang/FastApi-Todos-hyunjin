@@ -11,12 +11,14 @@
             background: linear-gradient(to right, #ffedb7, #ffffff);
             padding: 30px;
         }
+
         ul {
             list-style-type: none;
             padding: 0;
             max-width: 500px;
             margin: 20px auto;
         }
+
         li {
             display: flex;
             align-items: center;
@@ -27,14 +29,17 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         li.completed {
             background-color: #f0f0f0;
             color: #6c757d;
         }
+
         li.completed span {
             text-decoration: line-through;
             color: #6c757d;
         }
+
         .delete-btn {
             background-color: #dc3545;
             color: white;
@@ -43,24 +48,38 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         .delete-btn:hover {
             background-color: #c82333;
         }
+
         form {
-            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 700px;
+            margin: 30px auto 0;
+            gap: 8px;
         }
+
         input, button {
             padding: 10px;
-            margin: 8px;
             border-radius: 8px;
             border: 1px solid #ced4da;
             font-size: 16px;
         }
+
+        input {
+            flex: 1;
+        }
+
         button[type="submit"] {
             background-color: #28a745;
             color: white;
             cursor: pointer;
+            flex: 0;
         }
+
         button[type="submit"]:hover {
             background-color: #218838;
         }
@@ -69,15 +88,18 @@
 <body>
     <h1>✅ To-Do List</h1>
     <ul id="todo-list"></ul>
+
     <form id="todo-form">
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="description" placeholder="Description" required>
         <input type="date" id="deadline" required>
+        <input type="number" id="performance" placeholder="1~5 성능" min="1" max="5" required>
         <button type="submit">Add</button>
     </form>
+
     <script>
         async function fetchTodos() {
-            const response = await fetch('/todos');
+            const response = await fetch('/todos', { cache: "no-store" });
             const todos = await response.json();
             renderTodos(todos);
         }
@@ -98,13 +120,13 @@
                     await fetch(`/todos/${todo.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ...todo, completed: checkbox.checked }) // ✅ 수정 완료
+                        body: JSON.stringify({ ...todo, completed: checkbox.checked })
                     });
-                    fetchTodos();
+                    await fetchTodos();
                 });
 
                 const span = document.createElement('span');
-                span.textContent = `${todo.title}: ${todo.description} (마감: ${todo.deadline})`;
+                span.textContent = `${todo.title}: ${todo.description} (마감: ${todo.deadline}, 중요도: ${todo.performance})`;
 
                 label.appendChild(checkbox);
                 label.appendChild(span);
@@ -128,28 +150,39 @@
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
             const deadline = document.getElementById('deadline').value;
+            const performance = document.getElementById('performance').value;
+
+            const newTodo = {
+                id: Date.now(),
+                title,
+                description,
+                deadline,
+                performance,
+                completed: false
+            };
 
             const response = await fetch('/todos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: Date.now(), title, description, deadline, completed: false })
+                body: JSON.stringify(newTodo)
             });
 
             if (response.ok) {
-                // 폼 초기화
+                // 입력 초기화
                 document.getElementById('title').value = '';
                 document.getElementById('description').value = '';
                 document.getElementById('deadline').value = '';
+                document.getElementById('performance').value = '';
 
-                // 목록 즉시 새로고침
-                fetchTodos();
+                // 캐시 없이 목록 다시 불러오기
+                await fetchTodos();
             }
         });
 
         async function deleteTodo(id) {
             const response = await fetch(`/todos/${id}`, { method: 'DELETE' });
             if (response.ok) {
-                fetchTodos();
+                await fetchTodos();
             }
         }
 
