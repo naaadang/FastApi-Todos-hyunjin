@@ -8,26 +8,27 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
-            background: linear-gradient(to right, #ffedb7, #ffffff);
+            background: linear-gradient(to right, #ffffff);
             padding: 30px;
         }
 
         ul {
             list-style-type: none;
             padding: 0;
-            max-width: 500px;
-            margin: 20px auto;
+            max-width: 600px;
+            margin: 0 auto 40px auto;
         }
 
         li {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px;
+            padding: 16px 20ㅔㅌㅌ;
             margin: 10px 0;
             background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s;
         }
 
         li.completed {
@@ -93,7 +94,7 @@
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="description" placeholder="Description" required>
         <input type="date" id="deadline" required>
-        <input type="number" id="performance" placeholder="1~5 성능" min="1" max="5" required>
+        <input type="number" id="performance" placeholder="1~5 중요도도" min="1" max="5" required>
         <button type="submit">Add</button>
     </form>
 
