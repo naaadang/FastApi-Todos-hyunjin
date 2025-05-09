@@ -2,41 +2,88 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List</title>
+    <title>To-Do Dashboard</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f4f6f8;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
             text-align: center;
-            background: linear-gradient(to right, #ffffff);
+            padding: 20px;
+            background-color: #343a40;
+            color: white;
+        }
+
+        #todo-form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        input, button {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
             padding: 30px;
         }
 
-        ul {
-            list-style-type: none;
-            padding: 0;
+        .todo-section {
+            flex: 1;
             max-width: 600px;
-            margin: 0 auto 40px auto;
+            margin: 0 20px;
+        }
+
+        .todo-section h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
         }
 
         li {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 16px 20ㅔㅌㅌ;
+            align-items: center;
+            background-color: #ffffff;
             margin: 10px 0;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.1s;
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         li.completed {
-            background-color: #f0f0f0;
-            color: #6c757d;
-        }
-
-        li.completed span {
+            background-color: #d4edda;
             text-decoration: line-through;
             color: #6c757d;
         }
@@ -54,49 +101,37 @@
             background-color: #c82333;
         }
 
-        form {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 700px;
-            margin: 30px auto 0;
-            gap: 8px;
-        }
-
-        input, button {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ced4da;
-            font-size: 16px;
-        }
-
-        input {
-            flex: 1;
-        }
-
-        button[type="submit"] {
-            background-color: #28a745;
-            color: white;
-            cursor: pointer;
-            flex: 0;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #218838;
+        @media (max-width: 900px) {
+            main {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>✅ To-Do List</h1>
-    <ul id="todo-list"></ul>
+    <header>
+        <h1>📋 나의 할 일 관리</h1>
+    </header>
 
     <form id="todo-form">
-        <input type="text" id="title" placeholder="Title" required>
-        <input type="text" id="description" placeholder="Description" required>
+        <input type="text" id="title" placeholder="제목" required>
+        <input type="text" id="description" placeholder="설명" required>
         <input type="date" id="deadline" required>
-        <input type="number" id="performance" placeholder="1~5 중요도도" min="1" max="5" required>
-        <button type="submit">Add</button>
+        <input type="number" id="performance" placeholder="중요도(1~5)" min="1" max="5" required>
+        <button type="submit">추가</button>
     </form>
+
+    <main>
+        <div class="todo-section">
+            <h2>🕗 아직 안 한 일</h2>
+            <ul id="pending-list"></ul>
+        </div>
+        <div class="todo-section">
+            <h2>✅ 끝낸 일</h2>
+            <ul id="completed-list"></ul>
+        </div>
+    </main>
 
     <script>
         async function fetchTodos() {
@@ -106,14 +141,15 @@
         }
 
         function renderTodos(todos) {
-            const todoList = document.getElementById('todo-list');
-            todoList.innerHTML = '';
+            const pendingList = document.getElementById('pending-list');
+            const completedList = document.getElementById('completed-list');
+            pendingList.innerHTML = '';
+            completedList.innerHTML = '';
 
             todos.forEach(todo => {
                 const li = document.createElement('li');
                 if (todo.completed) li.classList.add('completed');
 
-                const label = document.createElement('label');
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.checked = todo.completed;
@@ -126,23 +162,26 @@
                     await fetchTodos();
                 });
 
-                const span = document.createElement('span');
-                span.textContent = `${todo.title}: ${todo.description} (마감: ${todo.deadline}, 중요도: ${todo.performance})`;
-
-                label.appendChild(checkbox);
-                label.appendChild(span);
+                const text = document.createElement('span');
+                text.textContent = `${todo.title}: ${todo.description} (마감: ${todo.deadline}, 중요도: ${todo.performance})`;
 
                 const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = '❌';
+                deleteBtn.textContent = '삭제';
                 deleteBtn.classList.add('delete-btn');
-                deleteBtn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    await deleteTodo(todo.id);
+                deleteBtn.addEventListener('click', async () => {
+                    await fetch(`/todos/${todo.id}`, { method: 'DELETE' });
+                    await fetchTodos();
                 });
 
-                li.appendChild(label);
+                li.appendChild(checkbox);
+                li.appendChild(text);
                 li.appendChild(deleteBtn);
-                todoList.appendChild(li);
+
+                if (todo.completed) {
+                    completedList.appendChild(li);
+                } else {
+                    pendingList.appendChild(li);
+                }
             });
         }
 
@@ -151,7 +190,7 @@
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
             const deadline = document.getElementById('deadline').value;
-            const performance = document.getElementById('performance').value;
+            const performance = Number(document.getElementById('performance').value);
 
             const newTodo = {
                 id: Date.now(),
@@ -169,23 +208,10 @@
             });
 
             if (response.ok) {
-                // 입력 초기화
-                document.getElementById('title').value = '';
-                document.getElementById('description').value = '';
-                document.getElementById('deadline').value = '';
-                document.getElementById('performance').value = '';
-
-                // 캐시 없이 목록 다시 불러오기
+                document.getElementById('todo-form').reset();
                 await fetchTodos();
             }
         });
-
-        async function deleteTodo(id) {
-            const response = await fetch(`/todos/${id}`, { method: 'DELETE' });
-            if (response.ok) {
-                await fetchTodos();
-            }
-        }
 
         fetchTodos();
     </script>
