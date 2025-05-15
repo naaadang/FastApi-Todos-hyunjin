@@ -15,4 +15,4 @@ scrape_configs:
   # 컨테이너 매트릭 수집 (cadvisor)
   - job_name: 'cadvisor'
     static_configs:
-      - targets: ['cadvisor:8081']
+      - targets: ['cadvisor:8082']
