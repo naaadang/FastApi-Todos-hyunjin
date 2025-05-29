@@ -2,80 +2,139 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>To-Do Dashboard</title>
+    <title>📋 나의 할 일 관리</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        /* 기존 스타일 유지 */
+        :root {
+            --primary-color: #4CAF50; /* 에메랄드 그린 */
+            --primary-dark-color: #388E3C;
+            --secondary-color: #FFC107; /* 앰버 */
+            --background-color: #e8f5e9; /* 아주 연한 그린 */
+            --card-background-color: #ffffff;
+            --text-color: #333;
+            --light-text-color: #666;
+            --border-color: #ddd;
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            --shadow-medium: rgba(0, 0, 0, 0.12);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
             margin: 0;
-            background-color: #f4f6f8;
+            background-color: var(--background-color);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            color: var(--text-color);
+            line-height: 1.6;
         }
 
         header {
             text-align: center;
-            padding: 20px;
-            background-color: #343a40;
+            padding: 30px 20px;
+            background-color: var(--primary-color);
             color: white;
+            box-shadow: 0 4px 8px var(--shadow-medium);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 2.5em;
         }
 
         #todo-form {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
             flex-wrap: wrap;
-            padding: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 25px 20px;
+            background-color: var(--card-background-color);
+            box-shadow: 0 2px 10px var(--shadow-light);
+            border-radius: 12px;
+            margin: 20px auto;
+            max-width: 900px;
         }
 
-        input, button, select {
-            padding: 10px;
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        select {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 15px;
             border-radius: 8px;
-            border: 1px solid #ced4da;
-            font-size: 14px;
+            border: 1px solid var(--border-color);
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
         }
 
-        button {
-            background-color: #007bff;
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            outline: none;
+        }
+
+        button[type="submit"] {
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            background-color: var(--primary-color);
             color: white;
             cursor: pointer;
+            font-size: 1em;
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        button:hover {
-            background-color: #0056b3;
+        button[type="submit"]:hover {
+            background-color: var(--primary-dark-color);
+            transform: translateY(-2px);
         }
 
         main {
             flex: 1;
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
             align-items: flex-start;
             padding: 30px;
+            gap: 40px; /* 섹션 간 간격 조절 */
+            flex-wrap: wrap; /* 작은 화면에서 컬럼 배치 */
         }
 
         .todo-section {
             flex: 1;
-            max-width: 600px;
-            margin: 0 20px;
+            min-width: 300px; /* 최소 너비 설정 */
+            max-width: 450px; /* 최대 너비 설정 */
+            background-color: var(--card-background-color);
+            box-shadow: 0 2px 10px var(--shadow-light);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px; /* 작은 화면일 때 섹션 간 간격 */
         }
 
         .todo-section h2 {
             text-align: center;
-            margin-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--primary-dark-color);
+            font-weight: 700;
+            font-size: 1.8em;
         }
 
-        .sort-options {
+        .sort-options, .filter-options {
             display: flex;
             justify-content: flex-start;
-            margin-bottom: 10px;
             align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
         }
 
-        .sort-options label {
-            margin-right: 10px;
+        .sort-options label, .filter-options label {
+            font-weight: 700;
+            color: var(--light-text-color);
         }
 
         ul {
@@ -85,38 +144,149 @@
 
         li {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background-color: #ffffff;
-            margin: 10px 0;
-            padding: 10px 15px;
+            background-color: var(--card-background-color);
+            margin: 12px 0;
+            padding: 15px 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            border-left: 5px solid; /* 중요도에 따라 색상 변경될 부분 */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative; /* 중요도 텍스트를 위한 포지셔닝 */
         }
+
+        li:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px var(--shadow-light);
+        }
+
+        li.performance-1 { border-left-color: #64dd17; } /* 연두색 */
+        li.performance-2 { border-left-color: #aeea00; } /* 라임 */
+        li.performance-3 { border-left-color: #ffeb3b; } /* 노랑 */
+        li.performance-4 { border-left-color: #ffc107; } /* 주황 */
+        li.performance-5 { border-left-color: #ff5722; } /* 진한 주황 */
+
 
         li.completed {
-            background-color: #d4edda;
+            background-color: #e0f2f1; /* 연한 청록색 */
             text-decoration: line-through;
-            color: #6c757d;
+            color: var(--light-text-color);
+            opacity: 0.8;
+            border-left-color: var(--primary-color);
         }
 
-        .delete-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 6px 10px;
+        li .todo-content {
+            flex-grow: 1;
+            margin-left: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        li .todo-title {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        li.completed .todo-title {
+            color: var(--light-text-color);
+        }
+
+        li .todo-description,
+        li .todo-details {
+            font-size: 0.9em;
+            color: var(--light-text-color);
+        }
+
+        li .todo-details {
+            margin-top: 5px;
+        }
+
+        li .category-tag {
+            display: inline-block;
+            background-color: #e0e0e0;
+            color: #555;
+            padding: 3px 8px;
             border-radius: 5px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            font-weight: normal;
+        }
+
+        li input[type="checkbox"] {
+            transform: scale(1.5);
+            margin-right: 10px;
+            accent-color: var(--primary-color);
             cursor: pointer;
         }
 
-        .delete-btn:hover {
-            background-color: #c82333;
+        .delete-btn {
+            background-color: #ef5350; /* 밝은 빨강 */
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        @media (max-width: 900px) {
+        .delete-btn:hover {
+            background-color: #d32f2f;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            #todo-form {
+                flex-direction: column;
+                padding: 15px;
+                margin: 15px auto;
+            }
+
+            input[type="text"],
+            input[type="date"],
+            input[type="number"],
+            select,
+            button[type="submit"] {
+                width: 100%;
+                min-width: unset;
+            }
+
             main {
                 flex-direction: column;
                 align-items: center;
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .todo-section {
+                width: 100%;
+                max-width: 90%; /* 모바일에서 좀 더 넓게 사용 */
+                margin-bottom: 15px;
+            }
+
+            li {
+                flex-wrap: wrap; /* 작은 화면에서 항목 내용 줄바꿈 */
+                padding: 12px 15px;
+            }
+
+            li .todo-content {
+                margin-left: 0;
+                margin-top: 10px; /* 체크박스 아래로 내용 이동 */
+                width: calc(100% - 30px); /* 체크박스 공간 제외 */
+            }
+
+            li input[type="checkbox"] {
+                order: 1; /* 체크박스를 먼저 */
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            li .delete-btn {
+                order: 3; /* 삭제 버튼을 마지막으로 */
+                margin-left: auto; /* 오른쪽 정렬 */
             }
         }
     </style>
@@ -131,6 +301,13 @@
         <input type="text" id="description" placeholder="설명" required>
         <input type="date" id="deadline" required>
         <input type="number" id="performance" placeholder="중요도(1~5)" min="1" max="5" required>
+        <select id="category">
+            <option value="일반">일반</option>
+            <option value="업무">업무</option>
+            <option value="개인">개인</option>
+            <option value="공부">공부</option>
+            <option value="운동">운동</option>
+        </select>
         <button type="submit">추가</button>
     </form>
 
@@ -142,6 +319,17 @@
                 <select id="sort-by">
                     <option value="importance">중요도순</option>
                     <option value="deadline">마감일 가까운순</option>
+                </select>
+            </div>
+            <div class="filter-options">
+                <label for="filter-category">카테고리 필터:</label>
+                <select id="filter-category">
+                    <option value="all">모두</option>
+                    <option value="일반">일반</option>
+                    <option value="업무">업무</option>
+                    <option value="개인">개인</option>
+                    <option value="공부">공부</option>
+                    <option value="운동">운동</option>
                 </select>
             </div>
             <ul id="pending-list"></ul>
@@ -165,11 +353,18 @@
         function sortTodos(todos, sortBy) {
             let sortedTodos = [...todos];
             if (sortBy === 'importance') {
-                sortedTodos.sort((a, b) => b.performance - a.performance);
+                sortedTodos.sort((a, b) => b.performance - a.performance); // 중요도 높은 순
             } else if (sortBy === 'deadline') {
-                sortedTodos.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+                sortedTodos.sort((a, b) => new Date(a.deadline) - new Date(b.deadline)); // 마감일 가까운 순
             }
             return sortedTodos;
+        }
+
+        function filterTodos(todos, filterCategory) {
+            if (filterCategory === 'all') {
+                return todos;
+            }
+            return todos.filter(todo => todo.category === filterCategory);
         }
 
         function renderTodos(todos) {
@@ -182,10 +377,13 @@
             const completedTodos = todos.filter(todo => todo.completed);
 
             const sortBy = document.getElementById('sort-by').value;
-            const sortedPendingTodos = sortTodos(pendingTodos, sortBy);
+            const filterCategory = document.getElementById('filter-category').value;
 
-            sortedPendingTodos.forEach(todo => {
+            const sortedAndFilteredPendingTodos = filterTodos(sortTodos(pendingTodos, sortBy), filterCategory);
+
+            sortedAndFilteredPendingTodos.forEach(todo => {
                 const li = document.createElement('li');
+                li.classList.add(`performance-${todo.performance}`); // 중요도에 따른 클래스 추가
 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
@@ -199,8 +397,25 @@
                     await fetchTodos();
                 });
 
-                const text = document.createElement('span');
-                text.textContent = `${todo.title}: ${todo.description} (마감: ${todo.deadline}, 중요도: ${todo.performance})`;
+                const contentDiv = document.createElement('div');
+                contentDiv.classList.add('todo-content');
+
+                const titleSpan = document.createElement('span');
+                titleSpan.classList.add('todo-title');
+                titleSpan.textContent = todo.title;
+
+                const categoryTag = document.createElement('span');
+                categoryTag.classList.add('category-tag');
+                categoryTag.textContent = todo.category;
+
+                const descriptionSpan = document.createElement('span');
+                descriptionSpan.classList.add('todo-description');
+                descriptionSpan.textContent = todo.description;
+
+                const detailsSpan = document.createElement('span');
+                detailsSpan.classList.add('todo-details');
+                detailsSpan.textContent = `마감: ${todo.deadline}, 중요도: ${todo.performance}`;
+
 
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = '삭제';
@@ -210,8 +425,13 @@
                     await fetchTodos();
                 });
 
+                titleSpan.appendChild(categoryTag); // 제목 옆에 카테고리 태그 추가
+                contentDiv.appendChild(titleSpan);
+                contentDiv.appendChild(descriptionSpan);
+                contentDiv.appendChild(detailsSpan);
+
                 li.appendChild(checkbox);
-                li.appendChild(text);
+                li.appendChild(contentDiv);
                 li.appendChild(deleteBtn);
                 pendingList.appendChild(li);
             });
@@ -219,6 +439,8 @@
             completedTodos.forEach(todo => {
                 const li = document.createElement('li');
                 li.classList.add('completed');
+                li.classList.add(`performance-${todo.performance}`); // 중요도에 따른 클래스 추가 (완료된 항목도)
+
 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
@@ -232,8 +454,25 @@
                     await fetchTodos();
                 });
 
-                const text = document.createElement('span');
-                text.textContent = `${todo.title}: ${todo.description} (마감: ${todo.deadline}, 중요도: ${todo.performance})`;
+                const contentDiv = document.createElement('div');
+                contentDiv.classList.add('todo-content');
+
+                const titleSpan = document.createElement('span');
+                titleSpan.classList.add('todo-title');
+                titleSpan.textContent = todo.title;
+
+                const categoryTag = document.createElement('span');
+                categoryTag.classList.add('category-tag');
+                categoryTag.textContent = todo.category;
+
+                const descriptionSpan = document.createElement('span');
+                descriptionSpan.classList.add('todo-description');
+                descriptionSpan.textContent = todo.description;
+
+                const detailsSpan = document.createElement('span');
+                detailsSpan.classList.add('todo-details');
+                detailsSpan.textContent = `마감: ${todo.deadline}, 중요도: ${todo.performance}`;
+
 
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = '삭제';
@@ -243,8 +482,13 @@
                     await fetchTodos();
                 });
 
+                titleSpan.appendChild(categoryTag); // 제목 옆에 카테고리 태그 추가
+                contentDiv.appendChild(titleSpan);
+                contentDiv.appendChild(descriptionSpan);
+                contentDiv.appendChild(detailsSpan);
+
                 li.appendChild(checkbox);
-                li.appendChild(text);
+                li.appendChild(contentDiv);
                 li.appendChild(deleteBtn);
                 completedList.appendChild(li);
             });
@@ -256,13 +500,15 @@
             const description = document.getElementById('description').value;
             const deadline = document.getElementById('deadline').value;
             const performance = Number(document.getElementById('performance').value);
+            const category = document.getElementById('category').value;
 
             const newTodo = {
-                id: Date.now(),
+                // id: Date.now(), // 이 줄을 제거하거나 주석 처리합니다.
                 title,
                 description,
                 deadline,
                 performance,
+                category,
                 completed: false
             };
 
@@ -275,10 +521,17 @@
             if (response.ok) {
                 document.getElementById('todo-form').reset();
                 await fetchTodos();
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.detail || 'To-Do 추가에 실패했습니다.'}`);
             }
-        });
+        });       
 
         document.getElementById('sort-by').addEventListener('change', () => {
+            renderTodos(currentTodos);
+        });
+
+        document.getElementById('filter-category').addEventListener('change', () => {
             renderTodos(currentTodos);
         });
 

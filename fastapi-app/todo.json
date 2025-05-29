@@ -1,18 +1,2 @@
 [
-    {
-        "id": 1747293239335,
-        "title": "나나",
-        "description": "집청소",
-        "completed": false,
-        "deadline": "2025-05-16",
-        "performance": 2
-    },
-    {
-        "id": 1747293251087,
-        "title": "ss",
-        "description": "ggg",
-        "completed": false,
-        "deadline": "2025-05-19",
-        "performance": 5
-    }
 ]
