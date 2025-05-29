@@ -21,7 +21,8 @@ services:
     command:
       - jmeter
       - -n
-      - -t
+      - -t5001
+
       - /jmeter/fastapi_test_plan.jmx
       - -l
       - /jmeter/results.jtl
@@ -78,6 +79,24 @@ services:
     networks:
       - loadtest-net
 
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password # 원하는 비밀번호로 변경
+      - DOCKER_INFLUXDB_INIT_ORG=my-org # 원하는 조직 이름으로 변경
+      - DOCKER_INFLUXDB_INIT_BUCKET=my-bucket # 원하는 버킷 이름으로 변경
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-token # 강력한 토큰으로 변경
+    networks:
+      - loadtest-net
+
+
 networks:
   loadtest-net:
     driver: bridge
@@ -88,3 +107,4 @@ volumes:
   sonarqube_logs:
   sonarqube_extensions:
   grafana-data:
+  influxdb_data:
