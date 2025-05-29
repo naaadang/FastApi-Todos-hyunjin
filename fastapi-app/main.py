@@ -13,10 +13,7 @@ Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 # To-Do 항목을 위한 데이터 모델
 class TodoItem(BaseModel):
-    # id는 서버에서 생성할 것이므로, 클라이언트에서 받지 않도록 Optional로 하거나,
-    # 생성 시에는 필요 없는 필드로 만듭니다.
-    # 혹은 생성 시에는 None, 업데이트 시에는 int로 다르게 처리할 수 있습니다.
-    # 여기서는 생성 시에는 id가 없어도 되도록 Optional[int]로 변경합니다.
+    
     id: int | None = None # id를 선택 사항으로 변경
     title: str
     description: str
